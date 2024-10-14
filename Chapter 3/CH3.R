@@ -11,7 +11,7 @@
 
 # Problem 8
 
-setwd("C:/Users/codyb/Documents/RStudio")
+setwd("C:/Users/codyb/Documents/STAT6000")
 
 eightA <- function() {
   # Load and clean the Auto dataset
@@ -40,6 +40,9 @@ eightA <- function() {
 # iv: 24.46708, confidence: 23.97308 24.96108, prediction: 14.8094 34.12476
 
 eightB <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
+  lm_fit <- lm(mpg ~ horsepower, data = Auto)
   plot(Auto$horsepower, Auto$mpg, 
        xlab = "Horsepower", 
        ylab = "MPG", 
@@ -51,6 +54,9 @@ eightB <- function() {
 # 8b: Done
 
 eightC <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
+  lm_fit <- lm(mpg ~ horsepower, data = Auto)
   par(mfrow = c(2, 2))
   plot(lm_fit)
   par(mfrow = c(1, 1))
@@ -58,17 +64,23 @@ eightC <- function() {
 # 8c: There is a slight non-linear relationship between the two.
 
 nineA <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
   pairs(Auto[,-9], main = "Scatterplot Matrix for Auto Data", col = "blue")
 }
 # 9a: Done
 
 nineB <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
   cor_matrix <- cor(Auto[,-9])
   print(cor_matrix)
 }
 # 9b: Done
 
 nineC <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
   lm_fit <- lm(mpg ~ . - name, data = Auto)
   summary(lm_fit)
 }
@@ -78,6 +90,8 @@ nineC <- function() {
 # iii: There is a linear relationship between year and mpg of 0.75.
 
 nineD <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
   par(mfrow = c(2, 2))
   lm_fit <- lm(mpg ~ . - name, data = Auto)
   plot(lm_fit)
@@ -86,6 +100,8 @@ nineD <- function() {
 # 9d: There seems to be a large outlier on Residuals vs Leverage.
 
 nineE <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
   lm_interaction <- lm(mpg ~ horsepower * weight + year * displacement + cylinders * weight + acceleration * horsepower, data = Auto)
   
   summary(lm_interaction)
@@ -93,6 +109,8 @@ nineE <- function() {
 # 9e: 
 
 nineF <- function() {
+  Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
+  Auto <- na.omit(Auto)
   lm_transformed1 <- lm(mpg ~ log(horsepower) + sqrt(weight) + year, data = Auto)
   cat("Model with log(horsepower) and sqrt(weight):\n")
   print(summary(lm_transformed1))
@@ -103,3 +121,152 @@ nineF <- function() {
 }
 
 # Problem 10
+tenA <- function() {
+  library(ISLR)
+  
+  data("Carseats")
+  
+  lm_fit <- lm(Sales ~ Price + Urban + US, data = Carseats)
+  
+  print(summary(lm_fit))
+}
+# 10a: Done
+
+# 10b:
+# - The coefficient for Price indicates that as Price increases by $1, Sales decrease by the amount of the coefficient.
+# - There is not a significant relationship between sales and ubran/non-urban area.
+# - There is a significant relationship between sales and US/non-US. Sales increase in the US by 1.2x if price and environment are the same.
+
+# 10c: 13.04 + (-0.0545)X1 + (-0.0219)X2 + (1.201)X3
+
+# 10d: We can reject the null hypothesis for Price and USYes.
+
+tenE <- function() {
+  library(ISLR)
+  data("Carseats")
+  lm_fit_reduced <- lm(Sales ~ Price + US, data = Carseats)
+
+  print(summary(lm_fit_reduced))
+}
+# 10e: Done
+
+tenF <- function() {
+  # Plot the models to show how well they fit
+  library(ISLR)
+  data("Carseats")
+  
+  # Full model from tenA()
+  lm_fit_full <- lm(Sales ~ Price + Urban + US, data = Carseats)
+  
+  # Reduced model from tenE()
+  lm_fit_reduced <- lm(Sales ~ Price + US, data = Carseats)
+  
+  # Predicted values for both models
+  predicted_full <- predict(lm_fit_full)
+  predicted_reduced <- predict(lm_fit_reduced)
+  
+  # Actual Sales values
+  actual_sales <- Carseats$Sales
+  
+  # Plotting Actual vs Predicted Sales for both models
+  par(mfrow = c(1, 2))
+  
+  # Plot for the full model
+  plot(actual_sales, predicted_full, 
+       xlab = "Actual Sales", ylab = "Predicted Sales",
+       main = "Full Model: Actual vs Predicted",
+       pch = 20, col = "blue")
+  abline(0, 1, col = "red", lwd = 2)
+  
+  # Plot for the reduced model
+  plot(actual_sales, predicted_reduced, 
+       xlab = "Actual Sales", ylab = "Predicted Sales",
+       main = "Reduced Model: Actual vs Predicted",
+       pch = 20, col = "green")
+  abline(0, 1, col = "red", lwd = 2)
+  
+  par(mfrow = c(1, 1))
+}
+
+# 10f: There seems to be a trend found in the data through the model but the R-squared and error values indicate that there is too much variability from data point to data point to be extremely confident in a prediction.
+
+tenG <- function() {
+  library(ISLR)
+  data("Carseats")
+  lm_fit_reduced <- lm(Sales ~ Price + US, data = Carseats)
+  conf_intervals <- confint(lm_fit_reduced, level = 0.95)
+  
+  print(conf_intervals)
+}
+
+# 10g: Done
+
+tenH <- function() {
+  library(ISLR)
+  data("Carseats")
+  lm_fit_reduced <- lm(Sales ~ Price + US, data = Carseats)
+  
+  par(mfrow = c(2, 2))
+  plot(lm_fit_reduced)
+  par(mfrow = c(1, 1))
+}
+
+# 10h: There does not appear to be evidence of outliers although one residual has very high leverage.
+
+# Problem 11
+
+elevenA <- function() {
+  set.seed(1)
+  
+  x <- rnorm(100)
+  y <- 2 * x + rnorm(100)
+  
+  lm_fit <- lm(y ~ x + 0)
+  
+  print(summary(lm_fit))
+  
+  coef_estimate <- coef(summary(lm_fit))[1, "Estimate"]
+  std_error <- coef(summary(lm_fit))[1, "Std. Error"]
+  t_value <- coef(summary(lm_fit))[1, "t value"]
+  p_value <- coef(summary(lm_fit))[1, "Pr(>|t|)"]
+  
+  cat("Coefficient Estimate (β̂):", round(coef_estimate, 3), "\n")
+  cat("Standard Error:", round(std_error, 3), "\n")
+  cat("t-Statistic:", round(t_value, 2), "\n")
+  cat("p-Value:", format.pval(p_value, digits = 3), "\n")
+  
+  cat("\nComment:\n")
+  cat("The estimated coefficient β̂ is", round(coef_estimate, 3), "with a standard error of", round(std_error, 3), ".\n")
+  cat("The t-statistic is", round(t_value, 2), "and the p-value is", format.pval(p_value, digits = 3), ", which is much less than 0.05.\n")
+  cat("Therefore, we reject the null hypothesis H0: β = 0. There is strong evidence that β is not equal to zero.\n")
+}
+# 11a: The estimated coefficient is significant, and we can reject the null hypothesis that β = 0.
+
+elevenB <- function() {
+  set.seed(1)
+  
+  x <- rnorm(100)
+  y <- 2 * x + rnorm(100)
+  
+  lm_fit <- lm(x ~ y + 0)
+  
+  print(summary(lm_fit))
+  
+  coef_estimate <- coef(summary(lm_fit))[1, "Estimate"]
+  std_error <- coef(summary(lm_fit))[1, "Std. Error"]
+  t_value <- coef(summary(lm_fit))[1, "t value"]
+  p_value <- coef(summary(lm_fit))[1, "Pr(>|t|)"]
+  
+  cat("Coefficient Estimate (β̂):", round(coef_estimate, 3), "\n")
+  cat("Standard Error:", round(std_error, 3), "\n")
+  cat("t-Statistic:", round(t_value, 2), "\n")
+  cat("p-Value:", format.pval(p_value, digits = 3), "\n")
+  
+  cat("\nComment:\n")
+  cat("The estimated coefficient β̂ is", round(coef_estimate, 3), "with a standard error of", round(std_error, 3), ".\n")
+  cat("The t-statistic is", round(t_value, 2), "and the p-value is", format.pval(p_value, digits = 3), ", which is much less than 0.05.\n")
+  cat("Therefore, we reject the null hypothesis H0: β = 0. There is strong evidence that β is not equal to zero.\n")
+}
+
+# 11b: The estimated coefficient is significant, and we can reject the null hypothesis that β = 0.
+
