@@ -606,3 +606,337 @@ thirteenJ <- function() {
   cat("\nConfidence intervals for the noisier data:\n")
   print(confint(lm_fit_more_noise))
 }
+
+# 13j: Done
+
+# Problem 14
+
+fourteenA <- function() {
+  set.seed(1)
+  
+  x1 <- runif(100)
+  x2 <- 0.5 * x1 + rnorm(100) / 10
+  
+  y <- 2 + 2 * x1 + 0.3 * x2 + rnorm(100)
+  
+  cat("First few values of x1:\n")
+  print(head(x1))
+  cat("\nFirst few values of x2:\n")
+  print(head(x2))
+  cat("\nFirst few values of y:\n")
+  print(head(y))
+  
+  return(list(x1 = x1, x2 = x2, y = y))
+}
+
+# 14a: Beta knot is 2, Beta 1 is 2 and Beta 2 is 0.3
+#data <- fourteenA()
+#x1 <- data$x1
+#x2 <- data$x2
+#y <- data$y
+
+fourteenB <- function(x1, x2) {
+  correlation <- cor(x1, x2)
+  cat("Correlation between x1 and x2:", correlation, "\n")
+  
+  plot(x1, x2, 
+       xlab = "x1", 
+       ylab = "x2", 
+       main = "Scatterplot of x1 vs x2", 
+       pch = 19, col = "blue")
+  
+
+  grid()
+  
+  return(correlation)
+}
+
+# 14b: Done
+#correlation <- fourteenB(x1, x2)
+
+fourteenC <- function(x1, x2, y) {
+  lm_fit <- lm(y ~ x1 + x2)
+  
+  cat("Summary of the linear model:\n")
+  print(summary(lm_fit))
+  
+  beta_hat_0 <- coef(lm_fit)[1]
+  beta_hat_1 <- coef(lm_fit)[2]
+  beta_hat_2 <- coef(lm_fit)[3]
+  
+  cat("\nObtained coefficients:\n")
+  cat("Intercept (β̂0):", round(beta_hat_0, 3), "\n")
+  cat("Slope for x1 (β̂1):", round(beta_hat_1, 3), "\n")
+  cat("Slope for x2 (β̂2):", round(beta_hat_2, 3), "\n")
+  
+  par(mfrow = c(2, 2))
+  plot(lm_fit)
+  par(mfrow = c(1, 1))
+
+  return(lm_fit)
+}
+
+# 14c: Done
+#lm_fit <- fourteenC(x1, x2, y)
+
+fourteenD <- function(x1, y) {
+  lm_x1 <- lm(y ~ x1)
+  
+  cat("Summary of the linear model (y ~ x1):\n")
+  print(summary(lm_x1))
+  
+  p_value_beta1 <- summary(lm_x1)$coefficients[2, 4]  # p-value for β1
+  
+  if (p_value_beta1 < 0.05) {
+    cat("\nWe can reject the null hypothesis H0: β1 = 0 (p-value =", p_value_beta1, ").\n")
+  } else {
+    cat("\nWe cannot reject the null hypothesis H0: β1 = 0 (p-value =", p_value_beta1, ").\n")
+  }
+  
+  par(mfrow = c(2, 2))
+  plot(lm_x1)
+  par(mfrow = c(1, 1))
+  
+  return(lm_x1)
+}
+
+# 14d: Done
+#lm_x1 <- fourteenD(x1, y)
+
+fourteenE <- function(x2, y) {
+  lm_x2 <- lm(y ~ x2)
+
+  cat("Summary of the linear model (y ~ x2):\n")
+  print(summary(lm_x2))
+
+  p_value_beta2 <- summary(lm_x2)$coefficients[2, 4]  # p-value for β2
+
+  if (p_value_beta2 < 0.05) {
+    cat("\nWe can reject the null hypothesis H0: β2 = 0 (p-value =", p_value_beta2, ").\n")
+  } else {
+    cat("\nWe cannot reject the null hypothesis H0: β2 = 0 (p-value =", p_value_beta2, ").\n")
+  }
+  
+  par(mfrow = c(2, 2))
+  plot(lm_x2)
+  par(mfrow = c(1, 1))
+  
+  return(lm_x2)
+}
+
+# 14e: Done
+#lm_x2 <- fourteenE(x2, y)
+
+# 14f: The results do contradict each other because the results from c suggest both predictors are insignificant, but d and e suggest they are both significant.
+# This is due to multicollinearity between x1 and x2.
+
+fourteenG <- function(x1, x2, y) {
+  x1 <- c(x1, 0.1)
+  x2 <- c(x2, 0.8)
+  y <- c(y, 6)
+  
+  lm_both <- lm(y ~ x1 + x2)
+  cat("Summary of the linear model (y ~ x1 + x2) with mismeasured observation:\n")
+  print(summary(lm_both))
+  
+  lm_x1 <- lm(y ~ x1)
+  cat("\nSummary of the linear model (y ~ x1) with mismeasured observation:\n")
+  print(summary(lm_x1))
+  
+  lm_x2 <- lm(y ~ x2)
+  cat("\nSummary of the linear model (y ~ x2) with mismeasured observation:\n")
+  print(summary(lm_x2))
+  
+  par(mfrow = c(2, 2))  # Set layout for 4 plots
+  plot(lm_both, main = "Diagnostic Plots for y ~ x1 + x2")
+  
+  par(mfrow = c(2, 2))  # Set layout for 4 plots
+  plot(lm_x1, main = "Diagnostic Plots for y ~ x1")
+  
+  # Diagnostic plots for y ~ x2
+  par(mfrow = c(2, 2))  # Set layout for 4 plots
+  plot(lm_x2, main = "Diagnostic Plots for y ~ x2")
+  
+  # Reset plotting layout
+  par(mfrow = c(1, 1))
+
+  return(list(lm_both = lm_both, lm_x1 = lm_x1, lm_x2 = lm_x2))
+}
+
+# 14g: Done
+#models_with_mismeasure <- fourteenG(x1, x2, y)
+
+# 14g: This new observation causes x2 to be more significant in the calculation of the model (outlier).
+# In x1 + x2 ~ y, the new observation changed x1's coeff and diminished its effect, while greatly increasing x2' coeff and effect.
+# The new observation is a high-leverage point, but not an outlier.
+# In x1 ~ y, the new observation lowered x1's effect.
+# The new observation is an outlier, but not a high-leverage point.
+# In x2 ~ y, the new observation increased x2's effect.
+# The new observation is not an outlier, but is a high-leverage point.
+
+# Problem 15
+load_boston_data <- function() {
+  # Replace the path below with the correct path to Boston.csv
+  boston_data <- read.csv("Chapter 3/data/Boston.csv", header = TRUE)
+  
+  boston_data <- boston_data[, -1]
+  
+  return(boston_data)
+}
+
+check_boston_data <- function() {
+  Boston <- read.csv("Chapter 3/data/Boston.csv", header = TRUE)
+  
+  cat("First few rows of Boston dataset:\n")
+  print(head(Boston))
+  
+  cat("\nColumn names in the Boston dataset:\n")
+  print(colnames(Boston))
+}
+
+#check_boston_data()
+
+fifteenA <- function() {
+  Boston <- load_boston_data()
+  
+  response <- Boston$crim
+  
+  results <- data.frame(Predictor = character(), Coefficient = numeric(), PValue = numeric(), stringsAsFactors = FALSE)
+  
+  for (predictor in colnames(Boston)[-1]) {
+    formula <- as.formula(paste("crim ~", predictor))
+    model <- lm(formula, data = Boston)
+    
+    coef <- summary(model)$coefficients[2, 1]
+    p_value <- summary(model)$coefficients[2, 4]
+    
+    results <- rbind(results, data.frame(Predictor = predictor, Coefficient = coef, PValue = p_value))
+    
+    plot(Boston[[predictor]], response, main = paste("Crime Rate vs", predictor),
+         xlab = predictor, ylab = "Per Capita Crime Rate (crim)", pch = 19, col = "blue")
+    abline(model, col = "red", lwd = 2)
+  }
+  
+  cat("Significant predictors (p-value < 0.05):\n")
+  print(results[results$PValue < 0.05, ])
+  
+  return(results)
+}
+
+# 15a: In all predictors but "chas", there is a significant association.
+simple_regression_results <- fifteenA()
+
+fifteenB <- function() {
+  Boston <- load_boston_data()
+  
+  model <- lm(crim ~ ., data = Boston)
+  
+  cat("Summary of the multiple regression model:\n")
+  print(summary(model))
+  
+  significant_predictors <- summary(model)$coefficients[summary(model)$coefficients[, 4] < 0.05, ]
+  
+  cat("\nPredictors for which we can reject H0 (p-value < 0.05):\n")
+  print(significant_predictors)
+  
+  return(model)
+}
+
+# 15b: We can reject the null hypothesis for zn, dis, rad, and medv.
+multiple_regression_model <- fifteenB()
+
+fifteenC <- function(simple_results, multiple_model) {
+  # Extract the coefficients from the multiple regression model (exclude intercept)
+  multiple_coefficients <- summary(multiple_model)$coefficients[-1, 1]  # Exclude the intercept
+  
+  # Create a data frame for multiple regression coefficients
+  multiple_results <- data.frame(Predictor = names(multiple_coefficients), MultipleCoefficient = multiple_coefficients)
+  
+  # Merge the simple and multiple regression results based on the Predictor name
+  comparison <- merge(simple_results, multiple_results, by = "Predictor")
+  
+  # Print the merged results to check
+  cat("Merged results for comparison:\n")
+  print(comparison)
+  
+  # Load ggplot2
+  library(ggplot2)
+  
+  # Create the comparison plot
+  plot <- ggplot(comparison, aes(x = Coefficient, y = MultipleCoefficient)) +
+    geom_point(color = "blue", size = 3) +
+    geom_smooth(method = "lm", se = FALSE, color = "red") +
+    labs(x = "Univariate Regression Coefficients", y = "Multiple Regression Coefficients",
+         title = "Comparison of Univariate and Multiple Regression Coefficients") +
+    theme_minimal()
+  
+  # Print the plot
+  print(plot)
+}
+
+# 15c: Multivariate regression finds less predictors to be significant than univariate regression.
+fifteenC(simple_regression_results, multiple_regression_model)
+
+fifteenD <- function() {
+  # Load the Boston dataset
+  Boston <- load_boston_data()
+  
+  # Initialize an empty data frame to store results
+  nonlinear_results <- data.frame(Predictor = character(), PValue_X2 = numeric(), PValue_X3 = numeric(), stringsAsFactors = FALSE)
+  
+  # Loop over each predictor and fit a polynomial regression model (up to cubic terms)
+  for (predictor in colnames(Boston)[colnames(Boston) != "crim"]) {
+    
+    # Skip binary/categorical predictors (like 'chas')
+    if (length(unique(Boston[[predictor]])) <= 2) {
+      cat(paste("Skipping predictor", predictor, "because it is binary or categorical.\n"))
+      next
+    }
+    
+    formula <- as.formula(paste("crim ~", predictor, "+ I(", predictor, "^2) + I(", predictor, "^3)"))
+    model <- lm(formula, data = Boston)
+    
+    # Check the number of coefficients in the model
+    num_coeffs <- length(summary(model)$coefficients[, 1])
+    
+    # Initialize p-values for quadratic and cubic terms
+    p_value_x2 <- NA
+    p_value_x3 <- NA
+    
+    # Extract p-values if there are enough coefficients
+    if (num_coeffs >= 3) {
+      p_value_x2 <- summary(model)$coefficients[3, 4]  # P-value for X^2
+    }
+    if (num_coeffs >= 4) {
+      p_value_x3 <- summary(model)$coefficients[4, 4]  # P-value for X^3
+    }
+    
+    # Store the results
+    nonlinear_results <- rbind(nonlinear_results, data.frame(Predictor = predictor, PValue_X2 = p_value_x2, PValue_X3 = p_value_x3))
+    
+    # Plot the cubic fit (ensure 'x' is correctly set)
+    plot(Boston[[predictor]], Boston$crim, main = paste("Cubic Fit: Crime Rate vs", predictor),
+         xlab = predictor, ylab = "Per Capita Crime Rate (crim)", pch = 19, col = "blue")
+    
+    # Use the correct column for 'predictor'
+    sorted_values <- seq(min(Boston[[predictor]], na.rm = TRUE), max(Boston[[predictor]], na.rm = TRUE), length.out = 100)
+    new_data <- data.frame(predictor_value = sorted_values)
+    names(new_data) <- predictor  # Set the correct column name dynamically
+    
+    # Add the curve for the cubic fit
+    lines(sorted_values, predict(model, newdata = new_data), col = "red", lwd = 2)
+  }
+  
+  # Print predictors with significant non-linear terms (p-value < 0.05 for X^2 or X^3)
+  cat("Predictors with significant non-linear associations (p-value < 0.05):\n")
+  print(nonlinear_results[!is.na(nonlinear_results$PValue_X2) & nonlinear_results$PValue_X2 < 0.05 |
+                            !is.na(nonlinear_results$PValue_X3) & nonlinear_results$PValue_X3 < 0.05, ])
+  
+  return(nonlinear_results)
+}
+
+# Run the function to check for non-linear associations
+nonlinear_results <- fifteenD()
+
+# 15d:
+nonlinear_results <- fifteenD()
