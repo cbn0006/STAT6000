@@ -1,0 +1,11 @@
+---
+title: "Chapter 4 Test"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+## Chapter 4 Applied Question 10 and 11
+
+Cody Nichols' Chapter 4 Applied Solution
+
+

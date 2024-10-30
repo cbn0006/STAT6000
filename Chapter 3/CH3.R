@@ -14,17 +14,13 @@
 setwd("C:/Users/codyb/Documents/Rstudio")
 
 eightA <- function() {
-  # Load and clean the Auto dataset
   Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
   Auto <- na.omit(Auto)
   
-  # Fit the linear model
   lm_fit <- lm(mpg ~ horsepower, data = Auto)
   
-  # Print the summary of the linear model
   print(summary(lm_fit))
   
-  # Make predictions for horsepower = 98 with confidence interval
   conf_interval <- predict(lm_fit, data.frame(horsepower = 98), interval = "confidence")
   cat("Confidence Interval for horsepower = 98:\n")
   print(conf_interval)
@@ -97,7 +93,7 @@ nineD <- function() {
   plot(lm_fit)
   par(mfrow = c(1, 1))
 }
-# 9d: There seems to be a large outlier on Residuals vs Leverage.
+# 9d: There seems to be a singular high-leverage point on Residuals vs Leverage.
 
 nineE <- function() {
   Auto <- read.csv("Chapter 3/data/Auto.csv", header = TRUE, na.strings="?")
@@ -630,10 +626,10 @@ fourteenA <- function() {
 }
 
 # 14a: Beta knot is 2, Beta 1 is 2 and Beta 2 is 0.3
-#data <- fourteenA()
-#x1 <- data$x1
-#x2 <- data$x2
-#y <- data$y
+data <- fourteenA()
+x1 <- data$x1
+x2 <- data$x2
+y <- data$y
 
 fourteenB <- function(x1, x2) {
   correlation <- cor(x1, x2)
@@ -652,7 +648,7 @@ fourteenB <- function(x1, x2) {
 }
 
 # 14b: Done
-#correlation <- fourteenB(x1, x2)
+correlation <- fourteenB(x1, x2)
 
 fourteenC <- function(x1, x2, y) {
   lm_fit <- lm(y ~ x1 + x2)
@@ -677,7 +673,7 @@ fourteenC <- function(x1, x2, y) {
 }
 
 # 14c: Done
-#lm_fit <- fourteenC(x1, x2, y)
+lm_fit <- fourteenC(x1, x2, y)
 
 fourteenD <- function(x1, y) {
   lm_x1 <- lm(y ~ x1)
@@ -701,7 +697,7 @@ fourteenD <- function(x1, y) {
 }
 
 # 14d: Done
-#lm_x1 <- fourteenD(x1, y)
+lm_x1 <- fourteenD(x1, y)
 
 fourteenE <- function(x2, y) {
   lm_x2 <- lm(y ~ x2)
@@ -725,7 +721,7 @@ fourteenE <- function(x2, y) {
 }
 
 # 14e: Done
-#lm_x2 <- fourteenE(x2, y)
+lm_x2 <- fourteenE(x2, y)
 
 # 14f: The results do contradict each other because the results from c suggest both predictors are insignificant, but d and e suggest they are both significant.
 # This is due to multicollinearity between x1 and x2.
@@ -764,7 +760,7 @@ fourteenG <- function(x1, x2, y) {
 }
 
 # 14g: Done
-#models_with_mismeasure <- fourteenG(x1, x2, y)
+models_with_mismeasure <- fourteenG(x1, x2, y)
 
 # 14g: This new observation causes x2 to be more significant in the calculation of the model (outlier).
 # In x1 + x2 ~ y, the new observation changed x1's coeff and diminished its effect, while greatly increasing x2' coeff and effect.
@@ -824,7 +820,7 @@ fifteenA <- function() {
 }
 
 # 15a: In all predictors but "chas", there is a significant association.
-simple_regression_results <- fifteenA()
+#simple_regression_results <- fifteenA()
 
 fifteenB <- function() {
   Boston <- load_boston_data()
@@ -843,7 +839,7 @@ fifteenB <- function() {
 }
 
 # 15b: We can reject the null hypothesis for zn, dis, rad, and medv.
-multiple_regression_model <- fifteenB()
+#multiple_regression_model <- fifteenB()
 
 fifteenC <- function(simple_results, multiple_model) {
   # Extract the coefficients from the multiple regression model (exclude intercept)
@@ -875,7 +871,7 @@ fifteenC <- function(simple_results, multiple_model) {
 }
 
 # 15c: Multivariate regression finds less predictors to be significant than univariate regression.
-fifteenC(simple_regression_results, multiple_regression_model)
+#fifteenC(simple_regression_results, multiple_regression_model)
 
 fifteenD <- function() {
   # Load the Boston dataset
@@ -935,8 +931,5 @@ fifteenD <- function() {
   return(nonlinear_results)
 }
 
-# Run the function to check for non-linear associations
-nonlinear_results <- fifteenD()
-
 # 15d:
-nonlinear_results <- fifteenD()
+#nonlinear_results <- fifteenD()
