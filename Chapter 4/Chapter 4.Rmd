@@ -4,8 +4,264 @@ output: html_document
 date: "`r Sys.Date()`"
 ---
 
-## Chapter 4 Applied Question 10 and 11
+# Chapter 4 Applied Question 10 and 11
 
 Cody Nichols' Chapter 4 Applied Solution
 
+# Question 10
 
+### a
+As year goes up, volume increases.
+```{r}
+library(ISLR)
+data("Weekly")
+```
+
+```{r}
+str(Weekly)
+summary(Weekly)
+```
+
+```{r}
+pairs(Weekly[, -9])  # Exclude the 'Direction' variable
+```
+
+```{r}
+cor(Weekly[, -9])  # Exclude the 'Direction' variable
+```
+
+```{r}
+library(ggplot2)
+ggplot(Weekly, aes(x = Year, y = Volume)) +
+  geom_line() +
+  labs(title = "Volume Over Time", x = "Year", y = "Volume")
+```
+
+### b
+Lag2 seems to be the only statistically significant variable.
+```{r}
+glm_full <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume,
+                data = Weekly, family = binomial)
+summary(glm_full)
+```
+
+### c
+The confusion matrix is telling me that TP = 557, TN = 54, FN = 48, and FP = 430.
+```{r}
+glm_probs <- predict(glm_full, type = "response")
+glm_pred <- ifelse(glm_probs > 0.5, "Up", "Down")
+```
+
+```{r}
+confusion_matrix <- table(Predicted = glm_pred, Actual = Weekly$Direction)
+confusion_matrix
+```
+
+```{r}
+accuracy <- mean(glm_pred == Weekly$Direction)
+accuracy
+```
+
+### d
+```{r}
+train <- Weekly$Year <= 2008
+test <- !train
+Weekly_train <- Weekly[train, ]
+Weekly_test <- Weekly[test, ]
+```
+
+```{r}
+glm_train <- glm(Direction ~ Lag2, data = Weekly_train, family = binomial)
+```
+
+```{r}
+glm_probs_test <- predict(glm_train, newdata = Weekly_test, type = "response")
+glm_pred_test <- ifelse(glm_probs_test > 0.5, "Up", "Down")
+```
+
+```{r}
+confusion_matrix_test <- table(Predicted = glm_pred_test, Actual = Weekly_test$Direction)
+confusion_matrix_test
+
+accuracy_test <- mean(glm_pred_test == Weekly_test$Direction)
+accuracy_test
+```
+
+### e
+```{r}
+library(MASS)
+lda_fit <- lda(Direction ~ Lag2, data = Weekly_train)
+lda_pred <- predict(lda_fit, newdata = Weekly_test)$class
+
+confusion_matrix_lda <- table(Predicted = lda_pred, Actual = Weekly_test$Direction)
+confusion_matrix_lda
+
+accuracy_lda <- mean(lda_pred == Weekly_test$Direction)
+accuracy_lda
+```
+
+### f
+```{r}
+qda_fit <- qda(Direction ~ Lag2, data = Weekly_train)
+qda_pred <- predict(qda_fit, newdata = Weekly_test)$class
+
+confusion_matrix_qda <- table(Predicted = qda_pred, Actual = Weekly_test$Direction)
+confusion_matrix_qda
+
+accuracy_qda <- mean(qda_pred == Weekly_test$Direction)
+accuracy_qda
+```
+
+### g
+```{r}
+library(class)
+train_X <- as.matrix(Weekly_train$Lag2)
+test_X <- as.matrix(Weekly_test$Lag2)
+train_Direction <- Weekly_train$Direction
+
+set.seed(1)
+knn_pred <- knn(train_X, test_X, train_Direction, k = 1)
+
+confusion_matrix_knn <- table(Predicted = knn_pred, Actual = Weekly_test$Direction)
+confusion_matrix_knn
+
+accuracy_knn <- mean(knn_pred == Weekly_test$Direction)
+accuracy_knn
+```
+
+### h
+```{r}
+accuracy_results <- data.frame(
+  Method = c("Logistic Regression", "LDA", "QDA", "KNN (K=1)"),
+  Accuracy = c(accuracy_test, accuracy_lda, accuracy_qda, accuracy_knn)
+)
+accuracy_results
+```
+
+### i
+```{r}
+glm_experiment <- glm(Direction ~ Lag1 + Lag2, data = Weekly_train, family = binomial)
+glm_probs_experiment <- predict(glm_experiment, newdata = Weekly_test, type = "response")
+glm_pred_experiment <- ifelse(glm_probs_experiment > 0.5, "Up", "Down")
+
+confusion_matrix_experiment <- table(Predicted = glm_pred_experiment, Actual = Weekly_test$Direction)
+confusion_matrix_experiment
+
+accuracy_experiment <- mean(glm_pred_experiment == Weekly_test$Direction)
+accuracy_experiment
+```
+
+```{r}
+set.seed(1)
+k_values <- c(1, 3, 5, 7, 9)
+accuracy_knn_values <- sapply(k_values, function(k) {
+  knn_pred_k <- knn(train_X, test_X, train_Direction, k = k)
+  mean(knn_pred_k == Weekly_test$Direction)
+})
+
+data.frame(K = k_values, Accuracy = accuracy_knn_values)
+```
+
+# Problem 11
+
+### a
+```{r}
+data("Auto")
+```
+
+```{r}
+median_mpg <- median(Auto$mpg)
+Auto$mpg01 <- ifelse(Auto$mpg > median_mpg, 1, 0)
+```
+
+### b
+- 
+- Weight, HP, Displacement are inversely related to mpg01.
+- Acceleration is positively related to mpg01.
+```{r}
+boxplot(Auto$displacement ~ Auto$mpg01, main = "Displacement vs mpg01",
+        xlab = "mpg01", ylab = "Displacement")
+
+boxplot(Auto$horsepower ~ Auto$mpg01, main = "Horsepower vs mpg01",
+        xlab = "mpg01", ylab = "Horsepower")
+
+boxplot(Auto$weight ~ Auto$mpg01, main = "Weight vs mpg01",
+        xlab = "mpg01", ylab = "Weight")
+
+boxplot(Auto$acceleration ~ Auto$mpg01, main = "Acceleration vs mpg01",
+        xlab = "mpg01", ylab = "Acceleration")
+```
+
+```{r}
+pairs(Auto[, c("mpg01", "displacement", "horsepower", "weight", "acceleration")])
+```
+
+### c
+```{r}
+set.seed(1)
+train_indices <- sample(1:nrow(Auto), nrow(Auto) * 0.7)
+Auto_train <- Auto[train_indices, ]
+Auto_test <- Auto[-train_indices, ]
+```
+
+### d
+
+```{r}
+lda_fit_auto <- lda(mpg01 ~ displacement + horsepower + weight + acceleration, data = Auto_train)
+lda_pred_auto <- predict(lda_fit_auto, newdata = Auto_test)$class
+
+confusion_matrix_auto_lda <- table(Predicted = lda_pred_auto, Actual = Auto_test$mpg01)
+confusion_matrix_auto_lda
+
+accuracy_auto_lda <- mean(lda_pred_auto == Auto_test$mpg01)
+accuracy_auto_lda
+```
+
+### e
+
+```{r}
+qda_fit_auto <- qda(mpg01 ~ displacement + horsepower + weight + acceleration, data = Auto_train)
+qda_pred_auto <- predict(qda_fit_auto, newdata = Auto_test)$class
+
+confusion_matrix_auto_qda <- table(Predicted = qda_pred_auto, Actual = Auto_test$mpg01)
+confusion_matrix_auto_qda
+
+accuracy_auto_qda <- mean(qda_pred_auto == Auto_test$mpg01)
+accuracy_auto_qda
+```
+
+### f
+
+```{r}
+glm_fit_auto <- glm(mpg01 ~ displacement + horsepower + weight + acceleration,
+                    data = Auto_train, family = binomial)
+glm_probs_auto <- predict(glm_fit_auto, newdata = Auto_test, type = "response")
+glm_pred_auto <- ifelse(glm_probs_auto > 0.5, 1, 0)
+
+confusion_matrix_auto_glm <- table(Predicted = glm_pred_auto, Actual = Auto_test$mpg01)
+confusion_matrix_auto_glm
+
+accuracy_auto_glm <- mean(glm_pred_auto == Auto_test$mpg01)
+accuracy_auto_glm
+```
+
+### g
+
+```{r}
+train_X_auto <- scale(Auto_train[, c("displacement", "horsepower", "weight", "acceleration")])
+test_X_auto <- scale(Auto_test[, c("displacement", "horsepower", "weight", "acceleration")],
+                     center = attr(train_X_auto, "scaled:center"),
+                     scale = attr(train_X_auto, "scaled:scale"))
+train_mpg01 <- Auto_train$mpg01
+```
+
+```{r}
+set.seed(1)
+k_values_auto <- c(1, 3, 5, 7, 9, 11)
+accuracy_knn_auto <- sapply(k_values_auto, function(k) {
+  knn_pred_auto <- knn(train_X_auto, test_X_auto, train_mpg01, k = k)
+  mean(knn_pred_auto == Auto_test$mpg01)
+})
+
+data.frame(K = k_values_auto, Accuracy = accuracy_knn_auto)
+```
