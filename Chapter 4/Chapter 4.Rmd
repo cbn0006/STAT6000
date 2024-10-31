@@ -150,6 +150,28 @@ confusion_matrix_experiment
 accuracy_experiment <- mean(glm_pred_experiment == Weekly_test$Direction)
 accuracy_experiment
 ```
+```{r}
+glm_interact <- glm(Direction ~ Lag1 * Lag2, data = Weekly_train, family = binomial)
+glm_probs_interact <- predict(glm_interact, newdata = Weekly_test, type = "response")
+glm_pred_interact <- ifelse(glm_probs_interact > 0.5, "Up", "Down")
+
+confusion_matrix_interact <- table(Predicted = glm_pred_interact, Actual = Weekly_test$Direction)
+confusion_matrix_interact
+
+accuracy_interact <- mean(glm_pred_interact == Weekly_test$Direction)
+accuracy_interact
+```
+```{r}
+glm_quad <- glm(Direction ~ Lag2 + I(Lag2^2), data = Weekly_train, family = binomial)
+glm_probs_quad <- predict(glm_quad, newdata = Weekly_test, type = "response")
+glm_pred_quad <- ifelse(glm_probs_quad > 0.5, "Up", "Down")
+
+confusion_matrix_quad <- table(Predicted = glm_pred_quad, Actual = Weekly_test$Direction)
+confusion_matrix_quad
+
+accuracy_quad <- mean(glm_pred_quad == Weekly_test$Direction)
+accuracy_quad
+```
 
 ```{r}
 set.seed(1)
@@ -172,6 +194,8 @@ data("Auto")
 ```{r}
 median_mpg <- median(Auto$mpg)
 Auto$mpg01 <- ifelse(Auto$mpg > median_mpg, 1, 0)
+Auto$origin <- as.factor(Auto$origin)
+Auto$cylinders <- as.factor(Auto$cylinders)
 ```
 
 ### b
@@ -190,10 +214,27 @@ boxplot(Auto$weight ~ Auto$mpg01, main = "Weight vs mpg01",
 
 boxplot(Auto$acceleration ~ Auto$mpg01, main = "Acceleration vs mpg01",
         xlab = "mpg01", ylab = "Acceleration")
+
+boxplot(year ~ mpg01, data = Auto, main = "Year vs mpg01",
+        xlab = "mpg01", ylab = "Year", col = c("lightblue", "lightgreen"))
+
+counts_cylinders <- table(Auto$cylinders, Auto$mpg01)
+barplot(counts_cylinders, beside = TRUE, 
+        col = c("lightblue", "lightgreen"),
+        legend = rownames(counts_cylinders),
+        main = "Cylinders vs mpg01",
+        xlab = "mpg01", ylab = "Count")
+
+counts_origin <- table(Auto$origin, Auto$mpg01)
+barplot(counts_origin, beside = TRUE, 
+        col = c("lightblue", "lightgreen"),
+        legend = rownames(counts_origin),
+        main = "Origin vs mpg01",
+        xlab = "mpg01", ylab = "Count")
 ```
 
 ```{r}
-pairs(Auto[, c("mpg01", "displacement", "horsepower", "weight", "acceleration")])
+pairs(Auto[, c("mpg01", "displacement", "horsepower", "weight", "acceleration", "year", "cylinders")])
 ```
 
 ### c
