@@ -256,6 +256,9 @@ confusion_matrix_auto_lda
 
 accuracy_auto_lda <- mean(lda_pred_auto == Auto_test$mpg01)
 accuracy_auto_lda
+
+error_rate_lda <- mean(lda_pred_auto != Auto_test$mpg01)
+error_rate_lda
 ```
 
 ### e
@@ -269,6 +272,9 @@ confusion_matrix_auto_qda
 
 accuracy_auto_qda <- mean(qda_pred_auto == Auto_test$mpg01)
 accuracy_auto_qda
+
+error_rate_qda <- mean(qda_pred_auto != Auto_test$mpg01)
+error_rate_qda
 ```
 
 ### f
@@ -284,6 +290,9 @@ confusion_matrix_auto_glm
 
 accuracy_auto_glm <- mean(glm_pred_auto == Auto_test$mpg01)
 accuracy_auto_glm
+
+error_rate_glm <- mean(glm_pred_auto != Auto_test$mpg01)
+error_rate_glm
 ```
 
 ### g
@@ -304,5 +313,7 @@ accuracy_knn_auto <- sapply(k_values_auto, function(k) {
   mean(knn_pred_auto == Auto_test$mpg01)
 })
 
-data.frame(K = k_values_auto, Accuracy = accuracy_knn_auto)
+error_rate_knn_auto <- 1 - accuracy_knn_auto
+
+data.frame(K = k_values_auto, Accuracy = accuracy_knn_auto, Error_Rate = error_rate_knn_auto)
 ```
