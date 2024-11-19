@@ -11,7 +11,9 @@ Cody Nichols' Chapter 4 Applied Solution
 # Question 10
 
 ### a
+
 As year goes up, volume increases.
+
 ```{r}
 library(ISLR)
 data("Weekly")
@@ -38,7 +40,9 @@ ggplot(Weekly, aes(x = Year, y = Volume)) +
 ```
 
 ### b
+
 Lag2 seems to be the only statistically significant variable.
+
 ```{r}
 glm_full <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume,
                 data = Weekly, family = binomial)
@@ -46,7 +50,9 @@ summary(glm_full)
 ```
 
 ### c
+
 The confusion matrix is telling me that TP = 557, TN = 54, FN = 48, and FP = 430.
+
 ```{r}
 glm_probs <- predict(glm_full, type = "response")
 glm_pred <- ifelse(glm_probs > 0.5, "Up", "Down")
@@ -63,6 +69,7 @@ accuracy
 ```
 
 ### d
+
 ```{r}
 train <- Weekly$Year <= 2008
 test <- !train
@@ -88,6 +95,7 @@ accuracy_test
 ```
 
 ### e
+
 ```{r}
 library(MASS)
 lda_fit <- lda(Direction ~ Lag2, data = Weekly_train)
@@ -101,6 +109,7 @@ accuracy_lda
 ```
 
 ### f
+
 ```{r}
 qda_fit <- qda(Direction ~ Lag2, data = Weekly_train)
 qda_pred <- predict(qda_fit, newdata = Weekly_test)$class
@@ -113,6 +122,7 @@ accuracy_qda
 ```
 
 ### g
+
 ```{r}
 library(class)
 train_X <- as.matrix(Weekly_train$Lag2)
@@ -130,6 +140,7 @@ accuracy_knn
 ```
 
 ### h
+
 ```{r}
 accuracy_results <- data.frame(
   Method = c("Logistic Regression", "LDA", "QDA", "KNN (K=1)"),
@@ -139,6 +150,7 @@ accuracy_results
 ```
 
 ### i
+
 ```{r}
 glm_experiment <- glm(Direction ~ Lag1 + Lag2, data = Weekly_train, family = binomial)
 glm_probs_experiment <- predict(glm_experiment, newdata = Weekly_test, type = "response")
@@ -150,6 +162,7 @@ confusion_matrix_experiment
 accuracy_experiment <- mean(glm_pred_experiment == Weekly_test$Direction)
 accuracy_experiment
 ```
+
 ```{r}
 glm_interact <- glm(Direction ~ Lag1 * Lag2, data = Weekly_train, family = binomial)
 glm_probs_interact <- predict(glm_interact, newdata = Weekly_test, type = "response")
@@ -161,6 +174,7 @@ confusion_matrix_interact
 accuracy_interact <- mean(glm_pred_interact == Weekly_test$Direction)
 accuracy_interact
 ```
+
 ```{r}
 glm_quad <- glm(Direction ~ Lag2 + I(Lag2^2), data = Weekly_train, family = binomial)
 glm_probs_quad <- predict(glm_quad, newdata = Weekly_test, type = "response")
@@ -187,6 +201,7 @@ data.frame(K = k_values, Accuracy = accuracy_knn_values)
 # Problem 11
 
 ### a
+
 ```{r}
 data("Auto")
 ```
@@ -199,9 +214,10 @@ Auto$cylinders <- as.factor(Auto$cylinders)
 ```
 
 ### b
-- 
-- Weight, HP, Displacement are inversely related to mpg01.
-- Acceleration is positively related to mpg01.
+
+-   Weight, HP, Displacement are inversely related to mpg01.
+-   Acceleration is positively related to mpg01.
+
 ```{r}
 boxplot(Auto$displacement ~ Auto$mpg01, main = "Displacement vs mpg01",
         xlab = "mpg01", ylab = "Displacement")
@@ -238,6 +254,7 @@ pairs(Auto[, c("mpg01", "displacement", "horsepower", "weight", "acceleration", 
 ```
 
 ### c
+
 ```{r}
 set.seed(1)
 train_indices <- sample(1:nrow(Auto), nrow(Auto) * 0.7)

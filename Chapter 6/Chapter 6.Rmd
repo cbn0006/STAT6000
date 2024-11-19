@@ -1,0 +1,11 @@
+---
+title: "Chapter 6"
+author: "Cody Nichols"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Cody Nichols' Chapter 6 Questions
+```{r}
+
+```
