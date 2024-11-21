@@ -50,7 +50,8 @@ for (i in 1:10) {
 ```{r}
 best_subset <- regsubsets(Y ~ ., data = data, nvmax = 10)
 
-summary(best_subset)
+reg_summary <- summary(best_subset)
+reg_summary
 ```
 
 
@@ -96,13 +97,15 @@ Forward has the same results as 8c, while backward does not.
 
 ```{r}
 forward_subset <- regsubsets(Y ~ ., data = data, nvmax = 10, method = "forward")
-summary(forward_subset)
+forward_summary <- summary(forward_subset)
+forward_summary
 ```
 
 
 ```{r}
 backward_subset <- regsubsets(Y ~ ., data = data, nvmax = 10, method = "backward")
-summary(backward_subset)
+backward_summary <- summary(backward_subset)
+backward_summary
 ```
 
 ```{r}
@@ -201,6 +204,9 @@ set.seed(12)
 data("College")
 
 head(College)
+
+mean_apps <- mean(College$Apps, na.rm = TRUE)
+cat("Mean of the Apps column:", mean_apps, "\n")
 ```
 
 
@@ -355,7 +361,7 @@ cat("Test MSE for PLS Model:", pls_mse, "\n")
 
 ### 9g
 
-There is not much difference between all five approaches with Least Squares and PCR being the best and Lasso being the worst. We can somewhat accurately predict applicants because colleges usually receive ~50k applications, so that is off by roughly 2-3%.
+There is not much difference between all five approaches with Least Squares and PCR being the best and Lasso being the worst. We cannot accurately predict applicants because colleges usually receive an average of 3000 applications and our MSE allows us to give or take roughly 1300 applications on each prediction.
 
 ```{r}
 test_errors <- data.frame(
@@ -382,6 +388,8 @@ set.seed(12)
 data("Boston")
 
 head(Boston)
+mean_crim <- mean(Boston$crim, na.rm = TRUE)
+cat("Mean of the crim column:", mean_crim, "\n")
 ```
 
 
@@ -537,7 +545,7 @@ cat("Test MSE for PCR:", pcr_mse, "\n")
 
 ### 11b
 
-All models don't perform well/reasonably well on this dataset because they all have roughly the same MSE and the predicted value is supposed to be somewhere around 0.03-0.006. This means that these models are off on a large magnitude
+All models don't perform well/reasonably well on this dataset because they all have roughly the same MSE and the predicted value(crim) has an average of ~3. This means that these models are off by roughly 100% on average.
 
 ```{r}
 test_mse_results <- data.frame(
