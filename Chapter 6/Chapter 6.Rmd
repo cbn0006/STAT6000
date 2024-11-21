@@ -8,36 +8,38 @@ output: html_document
 # Cody Nichols' Chapter 6 Questions
 
 ### 8a
-```{r}
-# Set seed for reproducibility
-set.seed(1)
 
-# Number of observations
+Done
+
+```{r}
+set.seed(12)
+
 n <- 100
 
-# Generate predictor X and noise vector epsilon
 X <- rnorm(n)
 epsilon <- rnorm(n)
 ```
 
 ### 8b
+
+Done
+
 ```{r}
-# Define coefficients
 beta0 <- 3
 beta1 <- 2
 beta2 <- -3
 beta3 <- 0.5
 
-# Generate response Y
 Y <- beta0 + beta1 * X + beta2 * X^2 + beta3 * X^3 + epsilon
 ```
 
 ### 8c
+
+X3 according to Cp, BIC, and R^2.Done
+
 ```{r}
-# Load required package
 library(leaps)
 
-# Create data frame with Y and predictors X^1 to X^10
 data <- data.frame(Y = Y)
 for (i in 1:10) {
   data[[paste0("X", i)]] <- X^i
@@ -46,16 +48,13 @@ for (i in 1:10) {
 
 
 ```{r}
-# Perform best subset selection
 best_subset <- regsubsets(Y ~ ., data = data, nvmax = 10)
 
-# Get summary of the selection
-reg_summary <- summary(best_subset)
+summary(best_subset)
 ```
 
 
 ```{r}
-# Find the model with minimum Cp, BIC, and maximum adjusted R^2
 min_cp_model <- which.min(reg_summary$cp)
 min_bic_model <- which.min(reg_summary$bic)
 max_adjr2_model <- which.max(reg_summary$adjr2)
@@ -63,30 +62,24 @@ max_adjr2_model <- which.max(reg_summary$adjr2)
 
 
 ```{r}
-# Plot Cp, BIC, and adjusted R^2
 par(mfrow = c(1, 3))
 
-# Plot Cp
 plot(reg_summary$cp, xlab = "Number of Variables", ylab = "Cp", type = "b", pch = 19)
 points(min_cp_model, reg_summary$cp[min_cp_model], col = "red", cex = 2, pch = 20)
 
-# Plot BIC
 plot(reg_summary$bic, xlab = "Number of Variables", ylab = "BIC", type = "b", pch = 19)
 points(min_bic_model, reg_summary$bic[min_bic_model], col = "red", cex = 2, pch = 20)
 
-# Plot Adjusted R^2
 plot(reg_summary$adjr2, xlab = "Number of Variables", ylab = "Adjusted R^2", type = "b", pch = 19)
 points(max_adjr2_model, reg_summary$adjr2[max_adjr2_model], col = "red", cex = 2, pch = 20)
 ```
 
 
 ```{r}
-# Coefficients of the best models
 coefficients_cp <- coef(best_subset, min_cp_model)
 coefficients_bic <- coef(best_subset, min_bic_model)
 coefficients_adjr2 <- coef(best_subset, max_adjr2_model)
 
-# Display the coefficients
 print("Coefficients of the best model according to Cp:")
 print(coefficients_cp)
 
@@ -98,21 +91,21 @@ print(coefficients_adjr2)
 ```
 
 ### 8d
+
+Forward has the same results as 8c, while backward does not.
+
 ```{r}
-# Forward stepwise selection
 forward_subset <- regsubsets(Y ~ ., data = data, nvmax = 10, method = "forward")
-forward_summary <- summary(forward_subset)
+summary(forward_subset)
 ```
 
 
 ```{r}
-# Backward stepwise selection
 backward_subset <- regsubsets(Y ~ ., data = data, nvmax = 10, method = "backward")
-backward_summary <- summary(backward_subset)
+summary(backward_subset)
 ```
 
 ```{r}
-# Identify best models
 min_cp_model_forward <- which.min(forward_summary$cp)
 min_bic_model_forward <- which.min(forward_summary$bic)
 max_adjr2_model_forward <- which.max(forward_summary$adjr2)
@@ -121,61 +114,57 @@ min_cp_model_backward <- which.min(backward_summary$cp)
 min_bic_model_backward <- which.min(backward_summary$bic)
 max_adjr2_model_backward <- which.max(backward_summary$adjr2)
 
-# Compare with best subset selection
 identical(min_cp_model, min_cp_model_forward)
 identical(min_cp_model, min_cp_model_backward)
 ```
 
 ### 8e
+
+X1, X2, and X3 are the significant predictors with the predictors being very close to what they are expected to be.
+
 ```{r}
-# Load glmnet package
 library(glmnet)
 
-# Prepare the predictor matrix and response vector
-X_matrix <- model.matrix(Y ~ . - 1, data = data)  # Exclude intercept
+X_matrix <- model.matrix(Y ~ . - 1, data = data)
 ```
 
 
 ```{r}
-# Perform cross-validation
-set.seed(1)
+set.seed(12)
 cv_lasso <- cv.glmnet(X_matrix, Y, alpha = 1)
 
-# Plot cross-validation error
 plot(cv_lasso)
 ```
 
 
 ```{r}
-# Optimal lambda
 optimal_lambda <- cv_lasso$lambda.min
 
-# Coefficient estimates at optimal lambda
+cat("Optimal lambda value:", optimal_lambda, "\n")
+
 lasso_coefficients <- predict(cv_lasso, s = optimal_lambda, type = "coefficients")
 
-# Display coefficients
 print("Lasso Coefficient Estimates at Optimal Lambda:")
 print(lasso_coefficients)
 ```
 
 ### 8f
+
+Lasso identifies x7 as the most significant predictor with x5 as the only other non-zero predictor (noise). Best subset is obviously chosen to be x7 only.
+
 ```{r}
-# Generate new response Y
 beta0_new <- 3
 beta7 <- 7
 Y_new <- beta0_new + beta7 * X^7 + epsilon
 
-# Update data with new Y
 data$Y <- Y_new
 ```
 
 
 ```{r}
-# Perform best subset selection with new Y
 best_subset_new <- regsubsets(Y ~ ., data = data, nvmax = 10)
 reg_summary_new <- summary(best_subset_new)
 
-# Identify best model
 min_cp_model_new <- which.min(reg_summary_new$cp)
 coefficients_cp_new <- coef(best_subset_new, min_cp_model_new)
 
@@ -185,16 +174,12 @@ print(coefficients_cp_new)
 
 
 ```{r}
-# Update response vector
 Y_new_vector <- Y_new
 
-# Perform cross-validation
 cv_lasso_new <- cv.glmnet(X_matrix, Y_new_vector, alpha = 1)
 
-# Optimal lambda
 optimal_lambda_new <- cv_lasso_new$lambda.min
 
-# Coefficient estimates at optimal lambda
 lasso_coefficients_new <- predict(cv_lasso_new, s = optimal_lambda_new, type = "coefficients")
 
 print("Lasso Coefficient Estimates with New Y:")
@@ -202,59 +187,55 @@ print(lasso_coefficients_new)
 ```
 
 ### 9a
+
+Done
+
 ```{r}
-# Load necessary libraries
 library(ISLR)
 library(glmnet)
 library(pls)
 library(MASS)
 
-# Set seed for reproducibility
-set.seed(1)
+set.seed(12)
 
-# Load the College data set
 data("College")
 
-# View the first few rows of the data
 head(College)
 ```
 
 
 ```{r}
-# Determine the number of observations
 n <- nrow(College)
 
-# Create a random sample of indices for the training set
 train_indices <- sample(1:n, size = round(0.7 * n))
 
-# Split the data
 train_data <- College[train_indices, ]
 test_data <- College[-train_indices, ]
 ```
 
 ### 9b
+
+Done
+
 ```{r}
-# Fit a linear model using all predictors
 lm_fit <- lm(Apps ~ ., data = train_data)
 
-# Summarize the model
 summary(lm_fit)
 ```
 
 ```{r}
-# Make predictions on the test set
 lm_pred <- predict(lm_fit, newdata = test_data)
 
-# Calculate Mean Squared Error (MSE)
 lm_mse <- mean((test_data$Apps - lm_pred)^2)
 
-# Report the test error
 cat("Test MSE for Linear Model:", lm_mse, "\n")
 ```
 
 ### 9c
+
+Done
+
 ```{r}
-# Prepare the model matrix
 x_train <- model.matrix(Apps ~ ., data = train_data)[, -1]
 y_train <- train_data$Apps
 
@@ -264,87 +245,72 @@ y_test <- test_data$Apps
 
 
 ```{r}
-# Set a grid of lambda values
 lambda_grid <- 10^seq(10, -2, length = 100)
 
-# Perform cross-validation for ridge regression
-set.seed(1)
+set.seed(12)
 cv_ridge <- cv.glmnet(x_train, y_train, alpha = 0, lambda = lambda_grid, standardize = TRUE)
 
-# Find the optimal lambda
 optimal_lambda_ridge <- cv_ridge$lambda.min
 
-# Plot cross-validation results
 plot(cv_ridge)
 ```
 
 
 ```{r}
-# Fit the ridge regression model using the optimal lambda
 ridge_mod <- glmnet(x_train, y_train, alpha = 0, lambda = optimal_lambda_ridge, standardize = TRUE)
 
-# Predict on the test set
 ridge_pred <- predict(ridge_mod, s = optimal_lambda_ridge, newx = x_test)
 
-# Calculate MSE
 ridge_mse <- mean((y_test - ridge_pred)^2)
 
-# Report the test error
 cat("Test MSE for Ridge Regression Model:", ridge_mse, "\n")
 ```
 
 ### 9d
+
+Done
+
 ```{r}
-# Perform cross-validation for lasso regression
-set.seed(1)
+set.seed(12)
 cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1, lambda = lambda_grid, standardize = TRUE)
 
-# Find the optimal lambda
 optimal_lambda_lasso <- cv_lasso$lambda.min
 
-# Plot cross-validation results
 plot(cv_lasso)
 ```
 
 
 ```{r}
-# Fit the lasso model using the optimal lambda
 lasso_mod <- glmnet(x_train, y_train, alpha = 1, lambda = optimal_lambda_lasso, standardize = TRUE)
 
-# Predict on the test set
 lasso_pred <- predict(lasso_mod, s = optimal_lambda_lasso, newx = x_test)
 
-# Calculate MSE
 lasso_mse <- mean((y_test - lasso_pred)^2)
 
-# Report the test error
 cat("Test MSE for Lasso Model:", lasso_mse, "\n")
 
-# Extract coefficients
 lasso_coef <- predict(lasso_mod, type = "coefficients", s = optimal_lambda_lasso)[1:18, ]
 
-# Number of non-zero coefficients
 non_zero_coef <- sum(lasso_coef != 0)
 
 cat("Number of non-zero coefficients in Lasso Model:", non_zero_coef, "\n")
 ```
 
 ### 9e
+
+Done
+
 ```{r}
-# Perform PCR with cross-validation
-set.seed(1)
+set.seed(12)
 pcr_fit <- pcr(Apps ~ ., data = train_data, scale = TRUE, validation = "CV")
 
-# Summary of cross-validation results
 summary(pcr_fit)
 ```
 
 
 ```{r}
-# Plot cross-validation MSE
 validationplot(pcr_fit, val.type = "MSEP")
 
-# Determine the optimal number of components
 optimal_M_pcr <- which.min(pcr_fit$validation$PRESS)
 
 cat("Optimal number of components in PCR Model:", optimal_M_pcr, "\n")
@@ -352,51 +318,46 @@ cat("Optimal number of components in PCR Model:", optimal_M_pcr, "\n")
 
 
 ```{r}
-# Predict on the test set using the optimal number of components
 pcr_pred <- predict(pcr_fit, test_data, ncomp = optimal_M_pcr)
 
-# Calculate MSE
 pcr_mse <- mean((y_test - pcr_pred)^2)
 
-# Report the test error
 cat("Test MSE for PCR Model:", pcr_mse, "\n")
 ```
 
 ### 9f
+
+Done
+
 ```{r}
-# Perform PLS with cross-validation
-set.seed(1)
+set.seed(12)
 pls_fit <- plsr(Apps ~ ., data = train_data, scale = TRUE, validation = "CV")
 
-# Summary of cross-validation results
 summary(pls_fit)
 ```
 
 
 ```{r}
-# Plot cross-validation MSE
 validationplot(pls_fit, val.type = "MSEP")
 
-# Determine the optimal number of components
 optimal_M_pls <- which.min(pls_fit$validation$PRESS)
 
 cat("Optimal number of components in PLS Model:", optimal_M_pls, "\n")
 ```
 
 ```{r}
-# Predict on the test set using the optimal number of components
 pls_pred <- predict(pls_fit, test_data, ncomp = optimal_M_pls)
 
-# Calculate MSE
 pls_mse <- mean((y_test - pls_pred)^2)
 
-# Report the test error
 cat("Test MSE for PLS Model:", pls_mse, "\n")
 ```
 
 ### 9g
+
+There is not much difference between all five approaches with Least Squares and PCR being the best and Lasso being the worst. We can somewhat accurately predict applicants because colleges usually receive ~50k applications, so that is off by roughly 2-3%.
+
 ```{r}
-# Compile test errors
 test_errors <- data.frame(
   Method = c("Least Squares", "Ridge Regression", "Lasso Regression", "PCR", "PLS"),
   Test_MSE = c(lm_mse, ridge_mse, lasso_mse, pcr_mse, pls_mse)
@@ -406,77 +367,62 @@ print(test_errors)
 ```
 
 ### 11a
+
+Done
+
 ```{r}
-# Load necessary libraries
-library(MASS)      # For the Boston data set
-library(leaps)     # For best subset selection
-library(glmnet)    # For ridge and lasso regression
-library(pls)       # For PCR
-library(caret)     # For cross-validation and data splitting
+library(MASS)
+library(leaps)
+library(glmnet)
+library(pls)
+library(caret)
 
-# Set seed for reproducibility
-set.seed(1)
+set.seed(12)
 
-# Load the Boston data set
 data("Boston")
 
-# View the first few rows
 head(Boston)
 ```
 
 
 ```{r}
-# Create index for training set
 train_indices <- sample(1:nrow(Boston), size = 0.7 * nrow(Boston))
 
-# Split the data
 train_data <- Boston[train_indices, ]
 test_data <- Boston[-train_indices, ]
 
-# Prepare predictors and response for training and test sets
 x_train <- model.matrix(crim ~ . - 1, data = train_data)
 y_train <- train_data$crim
 
 x_test <- model.matrix(crim ~ . - 1, data = test_data)
 y_test <- test_data$crim
 ```
-```{r}
-```
-
 
 ```{r}
-# Perform best subset selection
 best_subset <- regsubsets(crim ~ ., data = train_data, nvmax = 13)
 best_summary <- summary(best_subset)
 
-# Function to compute cross-validated MSE for models with different numbers of predictors
-k <- 10  # Number of folds
+k <- 10
 set.seed(1)
 folds <- sample(1:k, nrow(train_data), replace = TRUE)
 cv_errors <- matrix(NA, k, 13)
 
 for (j in 1:k) {
-  # Split into training and validation sets
   fold_train <- train_data[folds != j, ]
   fold_val <- train_data[folds == j, ]
   
   for (i in 1:13) {
-    # Fit model with i predictors
     reg_fit <- regsubsets(crim ~ ., data = fold_train, nvmax = 13)
     coef_i <- coef(reg_fit, id = i)
     
-    # Predict on validation set
     pred <- as.matrix(fold_val[, names(coef_i)[-1]]) %*% coef_i[-1] + coef_i[1]
     
-    # Compute validation MSE
     cv_errors[j, i] <- mean((fold_val$crim - pred)^2)
   }
 }
 
-# Compute average MSE across folds for each model size
 mean_cv_errors <- colMeans(cv_errors)
 
-# Identify model size with minimum MSE
 optimal_model_size <- which.min(mean_cv_errors)
 
 cat("Optimal number of predictors:", optimal_model_size, "\n")
@@ -484,7 +430,6 @@ cat("Optimal number of predictors:", optimal_model_size, "\n")
 
 
 ```{r}
-# Fit the model with the optimal number of predictors on the full training set
 final_best_subset <- regsubsets(crim ~ ., data = train_data, nvmax = optimal_model_size)
 final_coef <- coef(final_best_subset, id = optimal_model_size)
 selected_variables <- names(final_coef)[-1]
@@ -494,120 +439,107 @@ cat("Selected variables in the best subset model:", selected_variables, "\n")
 
 
 ```{r}
-# Prepare test data with selected variables
 x_test_best <- x_test[, selected_variables]
 
-# Predict on the test set
 best_subset_pred <- as.matrix(x_test_best) %*% final_coef[-1] + final_coef[1]
 
-# Compute test MSE
 best_subset_mse <- mean((y_test - best_subset_pred)^2)
 cat("Test MSE for Best Subset Selection:", best_subset_mse, "\n")
 ```
 
 ```{r}
-# Define a grid of lambda values
 lambda_grid <- 10^seq(4, -2, length = 100)
 
-# Perform cross-validation to select the optimal lambda
 set.seed(1)
 cv_ridge <- cv.glmnet(x_train, y_train, alpha = 0, lambda = lambda_grid, standardize = TRUE)
 
-# Plot cross-validation results
 plot(cv_ridge)
 
-# Optimal lambda
 optimal_lambda_ridge <- cv_ridge$lambda.min
 cat("Optimal lambda for Ridge Regression:", optimal_lambda_ridge, "\n")
 ```
 
 
 ```{r}
-# Fit the ridge regression model with the optimal lambda
 ridge_model <- glmnet(x_train, y_train, alpha = 0, lambda = optimal_lambda_ridge, standardize = TRUE)
 
-# Predict on the test set
 ridge_pred <- predict(ridge_model, s = optimal_lambda_ridge, newx = x_test)
 
-# Compute test MSE
 ridge_mse <- mean((y_test - ridge_pred)^2)
 cat("Test MSE for Ridge Regression:", ridge_mse, "\n")
 ```
 
 
 ```{r}
-# Perform cross-validation to select the optimal lambda
-set.seed(1)
+set.seed(12)
 cv_lasso <- cv.glmnet(x_train, y_train, alpha = 1, lambda = lambda_grid, standardize = TRUE)
 
-# Plot cross-validation results
 plot(cv_lasso)
 
-# Optimal lambda
 optimal_lambda_lasso <- cv_lasso$lambda.min
 cat("Optimal lambda for Lasso Regression:", optimal_lambda_lasso, "\n")
 ```
 
 
 ```{r}
-# Fit the lasso regression model with the optimal lambda
 lasso_model <- glmnet(x_train, y_train, alpha = 1, lambda = optimal_lambda_lasso, standardize = TRUE)
 
-# Predict on the test set
 lasso_pred <- predict(lasso_model, s = optimal_lambda_lasso, newx = x_test)
 
-# Compute test MSE
 lasso_mse <- mean((y_test - lasso_pred)^2)
 cat("Test MSE for Lasso Regression:", lasso_mse, "\n")
 
-# Extract coefficients
-lasso_coef <- predict(lasso_model, type = "coefficients", s = optimal_lambda_lasso)
-non_zero_coef <- sum(lasso_coef != 0) - 1  # Subtract 1 for the intercept
+lasso_coef <- coef(lasso_model, s = optimal_lambda_lasso)
 
-cat("Number of non-zero coefficients in Lasso Regression:", non_zero_coef, "\n")
+coefficients <- as.numeric(lasso_coef)
+
+variable_names <- rownames(lasso_coef)
+
+coefficients <- coefficients[-1]
+variable_names <- variable_names[-1]
+
+non_zero_indices <- which(coefficients != 0)
 ```
 
 
 ```{r}
-# Variables with non-zero coefficients
-selected_variables_lasso <- rownames(lasso_coef)[lasso_coef != 0]
-selected_variables_lasso <- selected_variables_lasso[-1]  # Remove intercept
+selected_variables_lasso <- variable_names[non_zero_indices]
+
+non_zero_coef <- length(non_zero_indices)
+
+cat("Number of non-zero coefficients in Lasso Regression:", non_zero_coef, "\n")
 cat("Variables selected by Lasso Regression:", selected_variables_lasso, "\n")
 ```
 
 ```{r}
-# Perform PCR with cross-validation
-set.seed(1)
+set.seed(12)
 pcr_model <- pcr(crim ~ ., data = train_data, scale = TRUE, validation = "CV")
 
-# Summary of cross-validation results
 summary(pcr_model)
 
-# Plot cross-validation MSE
 validationplot(pcr_model, val.type = "MSEP")
 ```
 
 
 ```{r}
-# Identify the number of components with minimum cross-validation error
 optimal_components <- which.min(pcr_model$validation$PRESS)
 cat("Optimal number of components in PCR:", optimal_components, "\n")
 ```
 
 
 ```{r}
-# Predict on the test set using the optimal number of components
 pcr_pred <- predict(pcr_model, test_data, ncomp = optimal_components)
 
-# Compute test MSE
 pcr_mse <- mean((y_test - pcr_pred)^2)
 cat("Test MSE for PCR:", pcr_mse, "\n")
 ```
 
 
 ### 11b
+
+All models don't perform well/reasonably well on this dataset because they all have roughly the same MSE and the predicted value is supposed to be somewhere around 0.03-0.006. This means that these models are off on a large magnitude
+
 ```{r}
-# Compile test MSEs
 test_mse_results <- data.frame(
   Method = c("Best Subset Selection", "Ridge Regression", "Lasso Regression", "PCR"),
   Test_MSE = c(best_subset_mse, ridge_mse, lasso_mse, pcr_mse)
@@ -617,6 +549,9 @@ print(test_mse_results)
 ```
 
 ### 11c
+
+No, because less important variables don't need to be used in this prediction/regression task.
+
 ```{r}
 print(selected_variables_lasso)
 ```
